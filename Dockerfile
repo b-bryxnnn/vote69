@@ -45,8 +45,13 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # Create uploads directory
+# Create uploads directory
 RUN mkdir -p public/uploads && chown -R nextjs:nodejs public/uploads
 
+# Copy start script
+COPY start.sh ./start.sh
+USER root
+RUN chmod +x start.sh
 USER nextjs
 
 EXPOSE 3000
@@ -54,4 +59,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["./start.sh"]

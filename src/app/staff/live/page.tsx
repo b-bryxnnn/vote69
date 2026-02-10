@@ -104,7 +104,7 @@ export default function LiveTallyPage() {
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center">
-            <div className="text-xl text-white">⏳ กำลังโหลด...</div>
+            <div className="text-xl text-white">กำลังโหลด...</div>
         </div>
     );
 
@@ -116,13 +116,13 @@ export default function LiveTallyPage() {
                     <div className="flex items-center gap-3">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/9/9f/RSL001.png" alt="logo" className="w-10 h-10" />
                         <div>
-                            <h1 className="text-lg font-bold text-white">🔴 นับคะแนนสด</h1>
+                            <h1 className="text-lg font-bold text-white">นับคะแนนสด (เรียลไทม์)</h1>
                             <p className="text-xs text-slate-400">สวัสดี, {session?.name}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <a href="/staff/submit" className="btn-primary text-sm py-2 px-4">📋 ยืนยันทางการ</a>
-                        <a href="/" className="text-sm text-slate-300 hover:text-white px-2">📺</a>
+                        <a href="/staff/submit" className="btn-primary text-sm py-2 px-4">ยืนยันทางการ</a>
+                        <a href="/admin" className="text-sm text-slate-300 hover:text-white px-3 py-1 rounded-lg hover:bg-white/10">กลับเมนู</a>
                         <button onClick={handleLogout} className="btn-danger text-sm py-2 px-3">ออก</button>
                     </div>
                 </div>
@@ -143,6 +143,18 @@ export default function LiveTallyPage() {
                         ))}
                     </select>
                 </div>
+
+                {/* Real-time Unofficial Banner */}
+                {selectedUnit && (
+                    <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 mb-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-red-500 pulse-live"></span>
+                            <span className="text-red-300 text-sm font-medium">
+                                ขณะนี้กำลังส่งคะแนนแบบเรียลไทม์ (ไม่เป็นทางการ)
+                            </span>
+                        </div>
+                    </div>
+                )}
 
                 {selectedUnit && selectedUnitData && (
                     <div className="fade-in space-y-4">
@@ -220,7 +232,7 @@ export default function LiveTallyPage() {
                             <div className="glass-card p-4" style={{ borderLeft: '4px solid #eab308' }}>
                                 <div className="flex items-center justify-between mb-3">
                                     <div>
-                                        <div className="font-bold text-yellow-300">🚫 ไม่ประสงค์ลงคะแนน</div>
+                                        <div className="font-bold text-yellow-300">ไม่ประสงค์ลงคะแนน</div>
                                     </div>
                                     <div className="text-3xl font-bold text-yellow-400">{noVoteCount}</div>
                                 </div>
@@ -237,7 +249,7 @@ export default function LiveTallyPage() {
                             <div className="glass-card p-4" style={{ borderLeft: '4px solid #ef4444' }}>
                                 <div className="flex items-center justify-between mb-3">
                                     <div>
-                                        <div className="font-bold text-red-300">❌ บัตรเสีย</div>
+                                        <div className="font-bold text-red-300">บัตรเสีย</div>
                                     </div>
                                     <div className="text-3xl font-bold text-red-400">{voidCount}</div>
                                 </div>

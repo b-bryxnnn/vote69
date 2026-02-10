@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     try {
         await requireAuth(request, 'ADMIN');
         const users = await prisma.user.findMany({
-            select: { id: true, username: true, role: true, name: true, createdAt: true },
+            select: { id: true, username: true, role: true, name: true, pollingUnitId: true, createdAt: true },
             orderBy: { createdAt: 'desc' },
         });
         return NextResponse.json(users);
@@ -23,7 +23,8 @@ export async function POST(request: NextRequest) {
     try {
         await requireAuth(request, 'ADMIN');
         const data = await request.json() as {
-            username: string; password: string; name: string; role?: 'ADMIN' | 'STAFF';
+            username: string; password: string; name: string;
+            role?: 'ADMIN' | 'STAFF'; pollingUnitId?: number | null;
         };
 
         if (!data.username || !data.password || !data.name) {
@@ -37,8 +38,9 @@ export async function POST(request: NextRequest) {
                 password: hash,
                 name: data.name,
                 role: data.role || 'STAFF',
+                pollingUnitId: data.pollingUnitId || null,
             },
-            select: { id: true, username: true, role: true, name: true, createdAt: true },
+            select: { id: true, username: true, role: true, name: true, pollingUnitId: true, createdAt: true },
         });
 
         return NextResponse.json(user, { status: 201 });

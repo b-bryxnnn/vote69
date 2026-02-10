@@ -12,12 +12,15 @@ enum Role {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  password  String
-  role      Role     @default(STAFF)
-  name      String
-  createdAt DateTime @default(now()) @map("created_at")
+  id                 Int          @id @default(autoincrement())
+  username           String       @unique
+  password           String
+  role               Role         @default(STAFF)
+  name               String
+  pollingUnitId      Int?         @unique @map("polling_unit_id")
+  pollingUnit        PollingUnit? @relation("AssignedUser", fields: [pollingUnitId], references: [id], onDelete: SetNull)
+  activeSessionToken String?      @map("active_session_token")
+  createdAt          DateTime     @default(now()) @map("created_at")
 
   @@map("users")
 }
@@ -46,6 +49,7 @@ model PollingUnit {
   results         VoteResult[]
   submissions     UnitSubmission[]
   tallies         LiveTally[]
+  assignedUser    User?            @relation("AssignedUser")
 
   @@map("polling_units")
 }

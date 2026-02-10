@@ -28,11 +28,7 @@ export default function LoginPage() {
                 return;
             }
 
-            if (data.user.role === 'ADMIN') {
-                router.push('/admin');
-            } else {
-                router.push('/staff/live');
-            }
+            router.push('/admin');
         } catch {
             setError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
         } finally {
@@ -85,7 +81,7 @@ export default function LoginPage() {
 
                         {error && (
                             <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 text-red-300 text-sm text-center">
-                                ⚠️ {error}
+                                {error}
                             </div>
                         )}
 
@@ -94,7 +90,7 @@ export default function LoginPage() {
                             disabled={loading}
                             className="btn-accent w-full text-center disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {loading ? '⏳ กำลังเข้าสู่ระบบ...' : '🔑 เข้าสู่ระบบ'}
+                            {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
                         </button>
                     </form>
 

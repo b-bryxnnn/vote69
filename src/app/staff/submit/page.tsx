@@ -145,7 +145,7 @@ export default function OfficialSubmitPage() {
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center">
-            <div className="text-xl text-white">⏳ กำลังโหลด...</div>
+            <div className="text-xl text-white">กำลังโหลด...</div>
         </div>
     );
 
@@ -159,12 +159,13 @@ export default function OfficialSubmitPage() {
                     <div className="flex items-center gap-3">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/9/9f/RSL001.png" alt="logo" className="w-10 h-10" />
                         <div>
-                            <h1 className="text-lg font-bold text-white">📋 ยืนยันคะแนนทางการ</h1>
+                            <h1 className="text-lg font-bold text-white">ยืนยันคะแนนทางการ</h1>
                             <p className="text-xs text-slate-400">สวัสดี, {session?.name}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <a href="/staff/live" className="btn-primary text-sm py-2 px-4">🔴 นับสด</a>
+                        <a href="/staff/live" className="btn-primary text-sm py-2 px-4">นับคะแนนสด</a>
+                        <a href="/admin" className="text-sm text-slate-300 hover:text-white px-3 py-1 rounded-lg hover:bg-white/10">กลับเมนู</a>
                         <button onClick={handleLogout} className="btn-danger text-sm py-2 px-3">ออก</button>
                     </div>
                 </div>
@@ -191,14 +192,14 @@ export default function OfficialSubmitPage() {
                         {/* Round Notice */}
                         {currentRound > 0 && (
                             <div className="bg-amber-500/20 border border-amber-500/30 rounded-xl p-4 text-amber-200">
-                                <div className="font-bold">⚠️ หน่วยนี้ส่งคะแนนแล้ว (รอบที่ {currentRound})</div>
+                                <div className="font-bold">หน่วยนี้ส่งคะแนนแล้ว (รอบที่ {currentRound})</div>
                                 <div className="text-sm mt-1">การส่งครั้งนี้จะเป็นรอบที่ {currentRound + 1} — กรุณาระบุเหตุผลการแก้ไข</div>
                             </div>
                         )}
 
                         {/* Ballot Info */}
                         <div className="glass-card p-5">
-                            <h3 className="text-lg font-semibold text-white mb-4">📊 ข้อมูลบัตรเลือกตั้ง</h3>
+                            <h3 className="text-lg font-semibold text-white mb-4">ข้อมูลบัตรเลือกตั้ง</h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
                                     <label className="block text-sm text-slate-300 mb-1">จำนวนผู้มาใช้สิทธิ์ *</label>
@@ -220,7 +221,7 @@ export default function OfficialSubmitPage() {
 
                         {/* Candidate Votes */}
                         <div className="glass-card p-5">
-                            <h3 className="text-lg font-semibold text-white mb-4">✅ คะแนนผู้สมัคร</h3>
+                            <h3 className="text-lg font-semibold text-white mb-4">คะแนนผู้สมัคร</h3>
                             <div className="space-y-3">
                                 {candidates.map((c) => (
                                     <div key={c.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5" style={{ borderLeft: `3px solid ${c.themeColor}` }}>
@@ -244,7 +245,7 @@ export default function OfficialSubmitPage() {
                                 ))}
 
                                 <div className="flex items-center gap-3 p-3 rounded-xl bg-yellow-500/10" style={{ borderLeft: '3px solid #eab308' }}>
-                                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-yellow-500 text-white font-bold">🚫</div>
+                                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-yellow-500 text-white text-xs font-bold">N/A</div>
                                     <div className="flex-1">
                                         <div className="text-sm font-medium text-yellow-300">ไม่ประสงค์ลงคะแนน</div>
                                     </div>
@@ -253,7 +254,7 @@ export default function OfficialSubmitPage() {
                                 </div>
 
                                 <div className="flex items-center gap-3 p-3 rounded-xl bg-red-500/10" style={{ borderLeft: '3px solid #ef4444' }}>
-                                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-red-500 text-white font-bold">❌</div>
+                                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-red-500 text-white text-xs font-bold">VOID</div>
                                     <div className="flex-1">
                                         <div className="text-sm font-medium text-red-300">บัตรเสีย</div>
                                     </div>
@@ -265,7 +266,7 @@ export default function OfficialSubmitPage() {
 
                         {/* Validation Box */}
                         <div className={`glass-card p-5 ${isBalanced ? 'border-green-500/50' : signaturesNum > 0 ? 'border-red-500/50' : 'border-white/10'} border`}>
-                            <h3 className="text-lg font-semibold text-white mb-3">🔍 ตรวจสอบความถูกต้อง</h3>
+                            <h3 className="text-lg font-semibold text-white mb-3">ตรวจสอบความถูกต้อง</h3>
                             <div className="grid grid-cols-2 gap-4 text-center">
                                 <div>
                                     <div className="text-sm text-slate-400">ผู้มาใช้สิทธิ์</div>
@@ -278,19 +279,19 @@ export default function OfficialSubmitPage() {
                             </div>
                             {signaturesNum > 0 && !isBalanced && (
                                 <div className="mt-3 bg-red-500/20 border border-red-500/30 rounded-lg p-3 text-red-200 text-center">
-                                    ⚠️ จำนวนไม่ตรงกัน! ต่างกัน {difference} — กรุณานับใหม่
+                                    จำนวนไม่ตรงกัน ต่างกัน {difference} — กรุณานับใหม่
                                 </div>
                             )}
                             {isBalanced && (
                                 <div className="mt-3 bg-green-500/20 border border-green-500/30 rounded-lg p-3 text-green-200 text-center">
-                                    ✅ จำนวนตรงกัน!
+                                    จำนวนตรงกัน
                                 </div>
                             )}
                         </div>
 
                         {/* Photo Evidence */}
                         <div className="glass-card p-5">
-                            <h3 className="text-lg font-semibold text-white mb-3">📷 รูปถ่ายหลักฐาน</h3>
+                            <h3 className="text-lg font-semibold text-white mb-3">รูปถ่ายหลักฐาน</h3>
                             <input
                                 type="file"
                                 accept="image/*"
@@ -299,14 +300,14 @@ export default function OfficialSubmitPage() {
                                 className="input-field"
                             />
                             {photoFile && (
-                                <p className="text-sm text-green-400 mt-2">✅ เลือกไฟล์: {photoFile.name}</p>
+                                <p className="text-sm text-green-400 mt-2">เลือกไฟล์แล้ว: {photoFile.name}</p>
                             )}
                         </div>
 
                         {/* Reason for Recount */}
                         {currentRound > 0 && (
                             <div className="glass-card p-5">
-                                <h3 className="text-lg font-semibold text-amber-300 mb-3">📝 เหตุผลในการแก้ไข (จำเป็น)</h3>
+                                <h3 className="text-lg font-semibold text-amber-300 mb-3">เหตุผลในการแก้ไข (จำเป็น)</h3>
                                 <textarea
                                     value={reason}
                                     onChange={(e) => setReason(e.target.value)}
@@ -320,12 +321,12 @@ export default function OfficialSubmitPage() {
                         {/* Messages */}
                         {error && (
                             <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-4 text-red-200 text-center">
-                                ⚠️ {error}
+                                {error}
                             </div>
                         )}
                         {message && (
                             <div className="bg-green-500/20 border border-green-500/30 rounded-xl p-4 text-green-200 text-center">
-                                ✅ {message}
+                                {message}
                             </div>
                         )}
 
@@ -335,7 +336,7 @@ export default function OfficialSubmitPage() {
                             disabled={!isBalanced || submitting}
                             className="btn-success w-full text-lg py-4 disabled:opacity-40 disabled:cursor-not-allowed"
                         >
-                            {submitting ? '⏳ กำลังส่ง...' : currentRound > 0 ? `📋 ส่งคะแนนรอบที่ ${currentRound + 1}` : '📋 ยืนยันส่งคะแนนทางการ'}
+                            {submitting ? 'กำลังส่ง...' : currentRound > 0 ? `ส่งคะแนนรอบที่ ${currentRound + 1}` : 'ยืนยันส่งคะแนนทางการ'}
                         </button>
                     </form>
                 )}

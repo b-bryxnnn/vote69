@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'vote69-secret-key-change-in-production');
 
@@ -9,6 +10,7 @@ export interface JWTPayload {
     username: string;
     role: 'ADMIN' | 'STAFF';
     name: string;
+    sessionToken?: string;
 }
 
 export async function createToken(payload: JWTPayload): Promise<string> {
@@ -37,7 +39,21 @@ export async function getSession(): Promise<JWTPayload | null> {
 export async function getSessionFromRequest(request: NextRequest): Promise<JWTPayload | null> {
     const token = request.cookies.get('token')?.value;
     if (!token) return null;
-    return verifyToken(token);
+    const payload = await verifyToken(token);
+    if (!payload) return null;
+
+    // Validate session token against DB (1 account = 1 device)
+    if (payload.sessionToken) {
+        const user = await prisma.user.findUnique({
+            where: { id: payload.userId },
+            select: { activeSessionToken: true },
+        });
+        if (user?.activeSessionToken && user.activeSessionToken !== payload.sessionToken) {
+            return null; // Session invalidated by newer login
+        }
+    }
+
+    return payload;
 }
 
 export async function requireAuth(request: NextRequest, role?: 'ADMIN' | 'STAFF'): Promise<JWTPayload> {

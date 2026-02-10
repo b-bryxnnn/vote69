@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { createToken } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 
 export async function POST(request: NextRequest) {
     try {
@@ -21,11 +22,21 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' }, { status: 401 });
         }
 
+        // Generate unique session token (1 account = 1 device)
+        const sessionToken = randomBytes(32).toString('hex');
+
+        // Save session token to DB (invalidates any previous session)
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { activeSessionToken: sessionToken },
+        });
+
         const token = await createToken({
             userId: user.id,
             username: user.username,
             role: user.role,
             name: user.name,
+            sessionToken,
         });
 
         const response = NextResponse.json({
