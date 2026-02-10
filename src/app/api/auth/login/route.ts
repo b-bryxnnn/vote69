@@ -53,7 +53,11 @@ export async function POST(request: NextRequest) {
         });
 
         return response;
-    } catch {
-        return NextResponse.json({ error: 'เกิดข้อผิดพลาด' }, { status: 500 });
+    } catch (error) {
+        console.error('Login error:', error);
+        return NextResponse.json({
+            error: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ',
+            details: error instanceof Error ? error.message : String(error)
+        }, { status: 500 });
     }
 }
