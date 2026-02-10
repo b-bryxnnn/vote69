@@ -15,11 +15,11 @@ COPY . .
 # Generate Prisma Client
 RUN npx prisma generate
 
-# Provide dummy DATABASE_URL for build (Next.js page data collection needs it)
+# Provide dummy DATABASE_URL for build
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 
-# Build Next.js
-RUN npm run build
+# Build Next.js (use webpack instead of Turbopack for compatibility)
+RUN npx next build --no-turbopack
 
 # Production
 FROM base AS runner
@@ -40,8 +40,7 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy generated Prisma client
-COPY --from=builder /app/src/generated ./src/generated
+# Copy Prisma client from node_modules
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
