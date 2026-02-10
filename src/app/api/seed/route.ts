@@ -41,23 +41,27 @@ export async function POST(request: NextRequest) {
         });
     } catch (error) {
         console.error('Seed error:', error);
-        return NextResponse.json({ error: 'เกิดข้อผิดพลาด' }, { status: 500 });
+        return NextResponse.json({ error: 'เกิดข้อผิดพลาด กรุณาตรวจสอบ DATABASE_URL' }, { status: 500 });
     }
 }
 
-// GET: list all users (admin only)
-export async function GET(request: NextRequest) {
+// GET: health check + DB setup
+export async function GET() {
     try {
-        await requireAuth(request, 'ADMIN');
-        const users = await prisma.user.findMany({
-            select: { id: true, username: true, role: true, name: true, createdAt: true },
-            orderBy: { createdAt: 'desc' },
+        // Try connecting to test DB is reachable
+        await prisma.$queryRaw`SELECT 1`;
+        return NextResponse.json({
+            status: 'ok',
+            message: 'เชื่อมต่อฐานข้อมูลสำเร็จ',
+            dbConnected: true,
         });
-        return NextResponse.json(users);
     } catch (error) {
-        if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-            return NextResponse.json({ error: 'กรุณาเข้าสู่ระบบ' }, { status: 401 });
-        }
-        return NextResponse.json({ error: 'เกิดข้อผิดพลาด' }, { status: 500 });
+        console.error('Health check error:', error);
+        return NextResponse.json({
+            status: 'error',
+            message: 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้',
+            dbConnected: false,
+            error: String(error),
+        }, { status: 500 });
     }
 }

@@ -41,17 +41,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Copy Prisma files for migration
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 
 # Create uploads directory
 RUN mkdir -p public/uploads && chown -R nextjs:nodejs public/uploads
-
-# Write start script directly (avoids CRLF issues from Windows)
-RUN printf '#!/bin/sh\necho "Running Prisma DB push..."\nnpx prisma db push --skip-generate 2>/dev/null || echo "DB push skipped"\necho "Starting Next.js..."\nnode server.js\n' > start.sh && chmod +x start.sh
 
 USER nextjs
 
@@ -60,4 +54,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["sh", "start.sh"]
+# Start directly - no migration script, just Node
+CMD ["node", "server.js"]
