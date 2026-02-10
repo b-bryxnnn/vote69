@@ -50,9 +50,8 @@ COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 # Create uploads directory
 RUN mkdir -p public/uploads && chown -R nextjs:nodejs public/uploads
 
-# Start script
-COPY --from=builder /app/start.sh ./start.sh
-RUN chmod +x start.sh
+# Write start script directly (avoids CRLF issues from Windows)
+RUN printf '#!/bin/sh\necho "Running Prisma DB push..."\nnpx prisma db push --skip-generate 2>/dev/null || echo "DB push skipped"\necho "Starting Next.js..."\nnode server.js\n' > start.sh && chmod +x start.sh
 
 USER nextjs
 
@@ -61,4 +60,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["./start.sh"]
+CMD ["sh", "start.sh"]
