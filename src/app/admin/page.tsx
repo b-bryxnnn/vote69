@@ -10,7 +10,7 @@ interface PollingUnit {
     id: number; name: string; grade: string; totalEligible: number; ballotsIssued: number;
 }
 interface User {
-    id: number; username: string; role: string; name: string; pollingUnitId: number | null;
+    id: number; username: string; role: string; name: string; pollingUnitId: number | null; lastSeen?: string | null;
 }
 interface Config {
     publicViewEnabled: boolean; electionTitle: string; schoolName: string;
@@ -40,6 +40,14 @@ export default function AdminPage() {
     const [editUserForm, setEditUserForm] = useState({ username: '', password: '', name: '', role: 'STAFF', pollingUnitId: '' });
 
     const isAdmin = session?.role === 'ADMIN';
+
+    const isOnline = (lastSeen?: string | null) => {
+        if (!lastSeen) return false;
+        const lastSeenDate = new Date(lastSeen);
+        const now = new Date();
+        const diff = now.getTime() - lastSeenDate.getTime();
+        return diff < 60000; // < 1 minute
+    };
 
     const checkSession = useCallback(async () => {
         const res = await fetch('/api/auth/me');
@@ -404,7 +412,8 @@ export default function AdminPage() {
                                         return (
                                             <div key={u.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5">
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`w-2.5 h-2.5 rounded-full ${assignedUser ? 'bg-green-400 pulse-live' : 'bg-slate-600'}`} />
+                                                    <div title={assignedUser && isOnline(assignedUser.lastSeen) ? "ออนไลน์" : "ออฟไลน์"}
+                                                        className={`w-2.5 h-2.5 rounded-full ${assignedUser && isOnline(assignedUser.lastSeen) ? 'bg-green-400 pulse-live' : 'bg-slate-600'}`} />
                                                     <div>
                                                         <div className="text-white font-medium text-sm">{u.name}</div>
                                                         <div className="text-xs text-slate-400">{u.grade} | ผู้มีสิทธิ์ {u.totalEligible} คน</div>
@@ -412,7 +421,7 @@ export default function AdminPage() {
                                                 </div>
                                                 <div className="text-right">
                                                     {assignedUser ? (
-                                                        <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-300">
+                                                        <span className={`text-xs px-2 py-1 rounded-full ${isOnline(assignedUser.lastSeen) ? 'bg-green-500/20 text-green-300' : 'bg-slate-500/20 text-slate-400'}`}>
                                                             {assignedUser.name}
                                                         </span>
                                                     ) : (
@@ -695,6 +704,8 @@ export default function AdminPage() {
                                             /* Display Mode */
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
+                                                    <div title={isOnline(u.lastSeen) ? "ออนไลน์" : "ออฟไลน์"}
+                                                        className={`w-2 h-2 rounded-full ${isOnline(u.lastSeen) ? 'bg-green-400' : 'bg-slate-600'}`} />
                                                     <div className={`px-2 py-1 rounded-md text-xs font-bold ${u.role === 'ADMIN' ? 'bg-amber-500/20 text-amber-300' : 'bg-blue-500/20 text-blue-300'}`}>
                                                         {u.role === 'ADMIN' ? 'Admin' : 'Staff'}
                                                     </div>

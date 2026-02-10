@@ -20,6 +20,7 @@ model User {
   pollingUnitId      Int?         @unique @map("polling_unit_id")
   pollingUnit        PollingUnit? @relation("AssignedUser", fields: [pollingUnitId], references: [id], onDelete: SetNull)
   activeSessionToken String?      @map("active_session_token")
+  lastSeen           DateTime?    @map("last_seen")
   createdAt          DateTime     @default(now()) @map("created_at")
 
   @@map("users")

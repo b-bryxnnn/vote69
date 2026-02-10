@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useHeartbeat } from '@/hooks/useHeartbeat';
 
 interface Candidate {
     id: number; number: number; name: string; partyName: string; photoUrl: string | null; themeColor: string;
@@ -34,6 +35,9 @@ export default function OfficialSubmitPage() {
     const [error, setError] = useState('');
 
     const router = useRouter();
+
+    // Send heartbeat when active
+    useHeartbeat(!!session);
 
     const checkSession = useCallback(async () => {
         const res = await fetch('/api/auth/me');
