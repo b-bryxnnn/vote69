@@ -24,13 +24,14 @@ export default function LoginPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                setError(data.error || 'เกิดข้อผิดพลาด');
+                const errorMessage = data.details ? `${data.error}: ${data.details}` : (data.error || 'เกิดข้อผิดพลาด');
+                setError(errorMessage);
                 return;
             }
 
             router.push('/admin');
-        } catch {
-            setError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+        } catch (err) {
+            setError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้: ' + (err instanceof Error ? err.message : String(err)));
         } finally {
             setLoading(false);
         }
