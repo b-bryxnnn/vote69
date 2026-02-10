@@ -38,18 +38,38 @@ export async function getSession(): Promise<JWTPayload | null> {
 
 export async function getSessionFromRequest(request: NextRequest): Promise<JWTPayload | null> {
     const token = request.cookies.get('token')?.value;
-    if (!token) return null;
+    if (!token) {
+        console.log('Auth Check: No token cookie found');
+        return null;
+    }
+
     const payload = await verifyToken(token);
-    if (!payload) return null;
+    if (!payload) {
+        console.log('Auth Check: Invalid token');
+        return null;
+    }
 
     // Validate session token against DB (1 account = 1 device)
     if (payload.sessionToken) {
-        const user = await prisma.user.findUnique({
-            where: { id: payload.userId },
-            select: { activeSessionToken: true },
-        });
-        if (user?.activeSessionToken && user.activeSessionToken !== payload.sessionToken) {
-            return null; // Session invalidated by newer login
+        try {
+            const user = await prisma.user.findUnique({
+                where: { id: payload.userId },
+                select: { activeSessionToken: true, username: true },
+            });
+
+            if (!user) {
+                console.log(`Auth Check: User ${payload.userId} not found in DB`);
+                return null;
+            }
+
+            if (user.activeSessionToken && user.activeSessionToken !== payload.sessionToken) {
+                console.log(`Auth Check: Session mismatch for user ${user.username}. Invalidating.`);
+                return null; // Session invalidated by newer login
+            }
+        } catch (error) {
+            console.error('Auth Check: DB error', error);
+            // In case of DB error, maybe allow if token is valid? Or denied? safely deny.
+            return null;
         }
     }
 
@@ -59,9 +79,11 @@ export async function getSessionFromRequest(request: NextRequest): Promise<JWTPa
 export async function requireAuth(request: NextRequest, role?: 'ADMIN' | 'STAFF'): Promise<JWTPayload> {
     const session = await getSessionFromRequest(request);
     if (!session) {
+        console.log('requireAuth: No session');
         throw new Error('UNAUTHORIZED');
     }
     if (role && session.role !== role && session.role !== 'ADMIN') {
+        console.log(`requireAuth: Role mismatch. Required ${role}, User has ${session.role}`);
         throw new Error('FORBIDDEN');
     }
     return session;
