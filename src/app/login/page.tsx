@@ -65,6 +65,7 @@ export default function LoginPage() {
                                 className="input-field"
                                 placeholder="กรอกชื่อผู้ใช้"
                                 required
+                                autoComplete="username"
                             />
                         </div>
 
@@ -77,6 +78,7 @@ export default function LoginPage() {
                                 className="input-field"
                                 placeholder="กรอกรหัสผ่าน"
                                 required
+                                autoComplete="current-password"
                             />
                         </div>
 
