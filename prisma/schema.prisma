@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  role      Role     @default(STAFF)
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Candidate {
+  id         Int          @id @default(autoincrement())
+  number     Int          @unique
+  name       String
+  partyName  String       @map("party_name")
+  photoUrl   String?      @map("photo_url")
+  themeColor String       @default("#3B82F6") @map("theme_color")
+  createdAt  DateTime     @default(now()) @map("created_at")
+  votes      VoteResult[]
+  tallies    LiveTally[]
+
+  @@map("candidates")
+}
+
+model PollingUnit {
+  id              Int              @id @default(autoincrement())
+  name            String           @unique
+  grade           String
+  totalEligible   Int              @default(0) @map("total_eligible")
+  ballotsIssued   Int              @default(0) @map("ballots_issued")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  results         VoteResult[]
+  submissions     UnitSubmission[]
+  tallies         LiveTally[]
+
+  @@map("polling_units")
+}
+
+model LiveTally {
+  id            Int         @id @default(autoincrement())
+  pollingUnitId Int         @map("polling_unit_id")
+  pollingUnit   PollingUnit @relation(fields: [pollingUnitId], references: [id], onDelete: Cascade)
+  candidateId   Int?        @map("candidate_id")
+  candidate     Candidate?  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  tallyType     String      @default("CANDIDATE") @map("tally_type") // CANDIDATE, NO_VOTE, VOID
+  count         Int         @default(0)
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  @@unique([pollingUnitId, candidateId, tallyType])
+  @@map("live_tallies")
+}
+
+model UnitSubmission {
+  id              Int         @id @default(autoincrement())
+  pollingUnitId   Int         @map("polling_unit_id")
+  pollingUnit     PollingUnit @relation(fields: [pollingUnitId], references: [id], onDelete: Cascade)
+  totalSignatures Int         @map("total_signatures")
+  ballotsIssued   Int         @default(0) @map("ballots_issued")
+  ballotsRemaining Int        @default(0) @map("ballots_remaining")
+  totalNoVote     Int         @default(0) @map("total_no_vote")
+  totalVoidBallots Int        @default(0) @map("total_void_ballots")
+  photoEvidence   String?     @map("photo_evidence")
+  round           Int         @default(1)
+  submittedBy     String      @map("submitted_by")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  @@map("unit_submissions")
+}
+
+model VoteResult {
+  id            Int         @id @default(autoincrement())
+  pollingUnitId Int         @map("polling_unit_id")
+  pollingUnit   PollingUnit @relation(fields: [pollingUnitId], references: [id], onDelete: Cascade)
+  candidateId   Int         @map("candidate_id")
+  candidate     Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  voteCount     Int         @default(0) @map("vote_count")
+  round         Int         @default(1)
+  submittedBy   String      @map("submitted_by")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  @@map("vote_results")
+}
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  action      String
+  pollingUnit String   @map("polling_unit")
+  round       Int      @default(1)
+  details     String
+  reason      String?
+  performedBy String   @map("performed_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+}
+
+model SystemConfig {
+  id                Int      @id @default(1)
+  publicViewEnabled Boolean  @default(false) @map("public_view_enabled")
+  electionTitle     String   @default("การเลือกตั้งสภานักเรียน") @map("election_title")
+  schoolName        String   @default("โรงเรียนรัตนโกสินทร์สมโภชลาดกระบัง") @map("school_name")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("system_config")
+}
