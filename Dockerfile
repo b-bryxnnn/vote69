@@ -18,8 +18,8 @@ RUN npx prisma generate
 # Provide dummy DATABASE_URL for build
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 
-# Build Next.js (use webpack instead of Turbopack for compatibility)
-RUN npx next build --no-turbopack
+# Build Next.js
+RUN npm run build
 
 # Production
 FROM base AS runner
