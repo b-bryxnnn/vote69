@@ -14,7 +14,26 @@ export async function GET(
     }
 
     try {
-        const filePath = join(process.cwd(), 'public', 'uploads', filename);
+        const cwd = process.cwd();
+        const uploadDir = join(cwd, 'public', 'uploads');
+        const filePath = join(uploadDir, filename);
+
+        console.log('Serving file:', { filename, cwd, uploadDir, filePath });
+
+        try {
+            await readFile(filePath);
+        } catch (err) {
+            console.error('File read error:', err);
+            // List directory contents for debugging
+            try {
+                const files = await import('fs').then(fs => fs.promises.readdir(uploadDir));
+                console.log('Files in upload dir:', files);
+            } catch (readDirErr) {
+                console.error('Could not read upload dir:', readDirErr);
+            }
+            return NextResponse.json({ error: 'File not found', details: filePath }, { status: 404 });
+        }
+
         const fileBuffer = await readFile(filePath);
 
         // Determine content type based on extension
