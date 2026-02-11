@@ -16,8 +16,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         if (data.username) updateData.username = data.username;
         if (data.name) updateData.name = data.name;
         if (data.role) updateData.role = data.role;
-        if (data.password) updateData.password = await bcrypt.hash(data.password, 12);
         if (data.pollingUnitId !== undefined) updateData.pollingUnitId = data.pollingUnitId;
+
+        // Hash and set new password if provided (non-empty)
+        if (data.password && data.password.trim().length > 0) {
+            updateData.password = await bcrypt.hash(data.password, 12);
+            // Invalidate user's session so they must re-login with new password
+            updateData.activeSessionToken = null;
+        }
 
         const user = await prisma.user.update({
             where: { id: parseInt(id) },
@@ -30,7 +36,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         if (error instanceof Error && error.message === 'UNAUTHORIZED') {
             return NextResponse.json({ error: 'กรุณาเข้าสู่ระบบ' }, { status: 401 });
         }
-        return NextResponse.json({ error: 'เกิดข้อผิดพลาด' }, { status: 500 });
+        console.error('Update user error:', error);
+        return NextResponse.json({ error: 'เกิดข้อผิดพลาดในการอัปเดตผู้ใช้' }, { status: 500 });
     }
 }
 
