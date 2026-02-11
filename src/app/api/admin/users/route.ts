@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     try {
         await requireAuth(request, 'ADMIN');
         const users = await prisma.user.findMany({
-            select: { id: true, username: true, role: true, name: true, pollingUnitId: true, createdAt: true, lastSeen: true },
+            select: { id: true, username: true, role: true, name: true, pollingUnitId: true, createdAt: true },
             orderBy: { createdAt: 'desc' },
         });
         return NextResponse.json(users);
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
                 role: data.role || 'STAFF',
                 pollingUnitId: data.pollingUnitId || null,
             },
-            select: { id: true, username: true, role: true, name: true, pollingUnitId: true, createdAt: true, lastSeen: true },
+            select: { id: true, username: true, role: true, name: true, pollingUnitId: true, createdAt: true },
         });
 
         return NextResponse.json(user, { status: 201 });

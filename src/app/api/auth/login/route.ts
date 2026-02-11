@@ -12,7 +12,10 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน' }, { status: 400 });
         }
 
-        const user = await prisma.user.findUnique({ where: { username } });
+        const user = await prisma.user.findUnique({
+            where: { username },
+            select: { id: true, username: true, password: true, role: true, name: true },
+        });
         if (!user) {
             return NextResponse.json({ error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' }, { status: 401 });
         }
@@ -26,10 +29,14 @@ export async function POST(request: NextRequest) {
         const sessionToken = randomBytes(32).toString('hex');
 
         // Save session token to DB (invalidates any previous session)
-        await prisma.user.update({
-            where: { id: user.id },
-            data: { activeSessionToken: sessionToken },
-        });
+        try {
+            await prisma.user.update({
+                where: { id: user.id },
+                data: { activeSessionToken: sessionToken },
+            });
+        } catch (e) {
+            console.warn('Could not save session token (column may not exist yet):', e);
+        }
 
         const token = await createToken({
             userId: user.id,

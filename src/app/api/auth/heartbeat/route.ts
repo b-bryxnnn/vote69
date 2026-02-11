@@ -10,10 +10,14 @@ export async function POST(request: NextRequest) {
         }
 
         // Update lastSeen timestamp
-        await prisma.user.update({
-            where: { id: session.userId },
-            data: { lastSeen: new Date() },
-        });
+        try {
+            await prisma.user.update({
+                where: { id: session.userId },
+                data: { lastSeen: new Date() },
+            });
+        } catch {
+            // Column may not exist yet — silently skip
+        }
 
         return NextResponse.json({ success: true });
     } catch (error) {
