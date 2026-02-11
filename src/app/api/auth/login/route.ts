@@ -51,11 +51,16 @@ export async function POST(request: NextRequest) {
             user: { id: user.id, username: user.username, role: user.role, name: user.name },
         });
 
-        const isHttps = request.url.startsWith('https://');
+        // Check for localhost to verify if we are in development
+        const host = request.headers.get('host') || '';
+        const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
+        const secureCookie = process.env.NODE_ENV === 'production' || !isLocal;
+
+        console.log('Login: Setting cookie', { secure: secureCookie, host, isLocal });
 
         response.cookies.set('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production' || isHttps,
+            secure: secureCookie,
             sameSite: 'lax',
             maxAge: 60 * 60 * 24,
             path: '/',
