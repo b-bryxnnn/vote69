@@ -50,7 +50,8 @@ export async function getSessionFromRequest(request: NextRequest): Promise<JWTPa
         return null;
     }
 
-    // Validate session token against DB (1 account = 1 device)
+    // Validate session token against DB (DISABLED for debugging login loop)
+    /*
     if (payload.sessionToken) {
         try {
             const user = await prisma.user.findUnique({
@@ -72,6 +73,7 @@ export async function getSessionFromRequest(request: NextRequest): Promise<JWTPa
             console.warn('Auth Check: Session validation skipped (DB column may not exist):', error);
         }
     }
+    */
 
     return payload;
 }
