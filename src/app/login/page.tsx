@@ -20,6 +20,7 @@ export default function LoginPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),
+                credentials: 'include',
             });
             const data = await res.json();
 
@@ -29,7 +30,8 @@ export default function LoginPage() {
                 return;
             }
 
-            router.push('/admin');
+            // Full page reload to ensure cookie is sent on next request
+            window.location.href = '/admin';
         } catch (err) {
             setError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้: ' + (err instanceof Error ? err.message : String(err)));
         } finally {

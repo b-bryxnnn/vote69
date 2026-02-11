@@ -50,7 +50,7 @@ export default function AdminPage() {
     };
 
     const checkSession = useCallback(async () => {
-        const res = await fetch('/api/auth/me');
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
         if (!res.ok) { router.push('/login'); return; }
         const data = await res.json();
         setSession(data.user);
