@@ -40,12 +40,13 @@ export async function getSessionFromRequest(request: NextRequest): Promise<JWTPa
     const token = request.cookies.get('token')?.value;
     if (!token) {
         console.log('Auth Check: No token cookie found');
+        console.log('Available cookies:', request.cookies.getAll().map(c => c.name).join(', '));
         return null;
     }
 
     const payload = await verifyToken(token);
     if (!payload) {
-        console.log('Auth Check: Invalid token');
+        console.log('Auth Check: Invalid token or verification failed');
         return null;
     }
 

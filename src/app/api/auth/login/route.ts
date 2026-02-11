@@ -51,9 +51,11 @@ export async function POST(request: NextRequest) {
             user: { id: user.id, username: user.username, role: user.role, name: user.name },
         });
 
+        const isHttps = request.url.startsWith('https://');
+
         response.cookies.set('token', token, {
             httpOnly: true,
-            secure: false,
+            secure: process.env.NODE_ENV === 'production' || isHttps,
             sameSite: 'lax',
             maxAge: 60 * 60 * 24,
             path: '/',
